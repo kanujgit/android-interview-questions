@@ -34,20 +34,79 @@
 
 * **What is `Activity` and its lifecycle?** - [Learn from here](https://www.youtube.com/watch?v=RiFui-i-s-o)
 
-* **What is the difference between onCreate() and onStart()** - [Learn from here](https://www.youtube.com/watch?v=RiFui-i-s-o)
+* **What is the difference between onCreate() and onStart()** - [Learn from here](https://stackoverflow.com/questions/6812003/difference-between-oncreate-and-onstart) 
 
-* **When only onDestroy is called for an activity without onPause() and onStop()?** - [Learn from here](https://www.youtube.com/watch?v=QSxcLnZ1-RU)
+- `onCreate()`: Called when the activity is first created. This is where you should do all of your normal static set up: create views, bind data to lists, etc. This method also provides you with a Bundle containing the activity's previously frozen state, if there was one. Always followed by onStart().
+- `onStart()`:Called when the activity is becoming visible to the user. Followed by onResume() if the activity comes to the foreground, or onStop() if it becomes hidden.
+   
 
-* **Why do we need to call setContentView() in onCreate() of Activity class?** - [Learn from here](https://www.youtube.com/watch?v=zeYK8JdMOi8)
+* **When only onDestroy is called for an activity without onPause() and onStop()?** 
+   - onPause() and onStop() will not be invoked if finish() is called from within the onCreate() method. 
+
+* **Why do we need to call setContentView() in onCreate() of Activity class?** - [Learn from here](https://stackoverflow.com/questions/33973399/why-do-we-set-content-view-in-oncreate-and-not-in-onstart-or-onresume)
+  -  As `onCreate()` of an Activity is called only once, this is the point where most initialization should go: calling setContentView(int) to inflate the activity's UI, using findViewById to programmatically interact with widgets in the UI, calling ``managedQuery(android.net.Uri , String[], String, String[], String)`` to retrieve cursors for data being displayed, etc.
+It is inefficient to set the content in onResume() or onStart() (which are called multiple times) as the setContentView() is a heavy operation.
 
 * **What is onSavedInstanceState() and onRestoreInstanceState() in activity?**
-    - onSavedInstanceState() - This method is used to store data before pausing the activity.
-    - onRestoreInstanceState() - This method is used to recover the saved state of an activity when the activity is recreated after destruction. So, the onRestoreInstanceState() receive the bundle that contains the instance state information.
+    - `onSavedInstanceState()` - This method is used to store data before pausing the activity.
+    - `onRestoreInstanceState()` - This method is used to recover the saved state of an activity when the activity is recreated after destruction. So, the onRestoreInstanceState() receive the bundle that contains the instance state information.
 
 * **What is `Fragment` and its lifecycle.** - [Learn from here](https://blog.mindorks.com/android-fragments-and-its-lifecycle)
 
 * **What are "launch modes"?** - [Learn from here](https://blog.mindorks.com/android-activity-launchmode-explained-cbc6cf996802)
+ - Standard 
+ - SIngleTask
+ - SingleInstance
+ - SingleTop
+```java
+"SingleTop"
+Ex:1 D->C->B->A (A: old instance gets extras data through onNewIntent(Intent intent))
+Ex:2 D->C->B->A->B(launch B: As the last B was not on the top of the task, a new instance will be created.)
+```
+```java
+"single task"
+ A -> B -> C -> D
+launch c ( C: old instance gets extras data through onNewIntent(Intent intent);
+A -> B -> C
+Info: D gets destroyed
+```
+```java
+"singleInstance"
+A -> B -> C -> D
+launch E
+A -> B -> C -> D   |   E 
+Info: A, B, C, D will be in one task and E will be in another task.
+Ex1: A -> B -> C -> D   |   E
+start F from E, then
+A -> B -> C -> D -> F   |   E
 
+Ex2: A -> B -> C -> D   |   E
+Now, Start E from A
+A -> B -> C -> D -> F   |   E(E: old instance gets extras data through onNewIntent(Intent intent))
+```
+```java
+"FLAG_ACTIVITY_NEW_TASK"   work like as single tasks
+```
+```java
+"FLAG_ACTIVITY_CLEAR_TASK"   (It works in conjugation with FLAG_ACTIVITY_NEW_TASK)
+Ex1:A->B->C->D   (We are starting E from D with a flag)
+FINAL O/P  -> E
+Info: All others will get destroyed
+Ex2:A->B->C->D
+FINAL O/P  -> B: a new instance of B will be created it will start as usual.
+Info: All others will get destroyed
+```
+```java
+"FLAG_ACTIVITY_SINGLE_TOP"
+FLAG_SINGLE_TOP is similar to launchMode="singleTop"
+```
+```java
+"FLAG_ACTIVITY_CLEAR_TOP"
+ex1:A->B->C->D
+We are starting B from D with a flag
+Final o/p  A->B: old instance gets extras data through onNewIntent(Intent intent);
+Info: All others will get destroyed
+```
 * **What is the difference between a `Fragment` and an `Activity`? Explain the relationship between the two.** - [Learn from here](https://stackoverflow.com/questions/10478233/why-fragments-and-when-to-use-fragments-instead-of-activities)
 
 * **When should you use a Fragment rather than an Activity?**
@@ -62,6 +121,7 @@
 
 * **Why is it recommended to use only the default constructor to create a `Fragment`?** - [Learn from here](https://www.youtube.com/watch?v=9EdvcycKP9A)
 
+    - In short, Fragments need to have a no-args constructor for the Android system to instantiate them.
 * **How would you communicate between two Fragments?** - [Learn from here](https://blog.mindorks.com/how-to-communicate-between-fragments)
 
 * **What is retained `Fragment`?**
@@ -104,25 +164,33 @@
 #### Dialogs and Toasts
 
 * **What is `Dialog` in Android?** - [Learn from here](https://developer.android.com/guide/topics/ui/dialogs)
- - A dialog is a small window that prompts the user to make a decision or enter additional information.
+  A dialog is a small window that prompts the user to make a decision or enter additional information.
 
 * **What is `Toast` in Android?** - [Learn from here](https://developer.android.com/guide/topics/ui/notifiers/toasts)
 
 * **What the difference between `Dialog` and `Dialog Fragment`?** - [Learn from here](https://stackoverflow.com/questions/7977392/android-dialogfragment-vs-dialog)
- - Using DialogFragment to manage the dialog ensures that it correctly handles lifecycle events such as when the user presses the Back button or rotates the screen. The DialogFragment class also allows you to reuse the dialog's UI as an embeddable component in a larger UI, just like a traditional Fragment (such as when you want the dialog UI to appear differently on large and small screens) 
+
+  - Using DialogFragment to manage the dialog ensures that it correctly handles lifecycle events such as when the user presses the Back button or rotates the screen. The DialogFragment class also allows you to reuse the dialog's UI as an embeddable component in a larger UI, just like a traditional Fragment (such as when you want the dialog UI to appear differently on large and small screens) 
  - 
 
 #### Intents and Broadcasting
 
 * **What is `Intent`?** - [Learn from here](https://blog.mindorks.com/what-are-intents-in-android)
+    - The intent is a messaging object, you can use to request an action from another app component.
 
 * **What is an Implicit `Intent`?** - [Learn from here](https://blog.mindorks.com/what-are-intents-in-android)
+	- Here, you don’t need to specify the fully-qualified address. All you need to do is just specify the action that is to be performed by an Intent. By using the Implicit Intents you can communicate between various applications present in the mobile device.
+	Ex. Access location, Launch map, start the third part app by using intent
         
 * **What is an Explicit `Intent`?** - [Learn from here](https://blog.mindorks.com/what-are-intents-in-android)
+	- If you want communication between the components of your application only then you can use the Explicit Intents. Explicit Intents are used to communicate with a particular component of the same application
+	Ex: Start activity, start service, start broadcast
 
 * **What is a `BroadcastReceiver`?** - [Learn from here](https://developer.android.com/guide/components/broadcasts)
+    - Android apps can send or receive broadcast messages from the Android system and other Android apps, similar to the publish-subscribe design pattern
 
 * **What is a `LocalBroadcastManager`?** - [Learn from here](https://blog.mindorks.com/using-localbroadcastmanager-in-android)
+    - If you want some kind of broadcasting in your application then you should use the concept of LocalBroadcastManager and we should avoid using the Global Broadcast because for using Global Broadcast you have to ensure that there are no security holes that can leak your data to other applications
 
 * **What is the function of an `IntentFilter`?** - [Learn from here](https://developer.android.com/reference/android/content/IntentFilter)
 
@@ -147,12 +215,33 @@
 #### Inter-process Communication
 
 * **How can two distinct Android apps interact?** - [Learn from here](https://developer.android.com/training/basics/intents)
-
+1. ```Sending the User to Another App```
+	Shows how you can create implicit intents to launch other apps that can perform an action.
+2. ``Getting a Result from an Activity``
+	Shows how to start another activity and receive a result from the activity.
+3. ``Allowing Other Apps to Start Your Activity``
+	Shows how to make activities in your app open for use by other apps by defining intent filters that declare the implicit intents your app accepts.
+4. ``Managing Package Visibility``
+	Shows how to make other apps visible to your app, if those other apps aren't visible by default. Applies only to apps that target Android 11 (API level 30) or higher.
+5. ``Configuring Package Visibility Based on Use Cases``
+	Shows several types of app interactions that might require you to update your app's manifest file in order for other apps to be visible to your app. Applies only to apps that target Android 11 (API level 30) or higher.
+	
 * **Is it possible to run an Android app in multiple processes? How?** - [Learn from here](https://stackoverflow.com/questions/6567768/how-can-an-android-application-have-more-than-one-process)
+    - You can specify ``android:process=":remote"``in your manifest to have an activity/service run in a seperate process.
+The "remote" is just the name of the remote process, and you can call it whatever you want. If you want several activities/services to run in the same process, just give it the same name.
+```xml
+<activity android:name=".RemoteActivity" android:label="@string/app_name" android:process=":RemoteActivityProcess"/>
+```
 
 * **What is AIDL? Enumerate the steps in creating a bounded service through AIDL.** - [Learn from here](https://developer.android.com/guide/components/aidl)
 
 * **What can you use for background processing in Android?** - [Learn from here](https://developer.android.com/guide/background)
+    - Background tasks fall into one of the following main categories:
+- Immediate - *****Kotlin coroutines*****
+- Deferred - *****[WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)*****
+- Exact - *****[Alarm Manager](https://developer.android.com/reference/android/app/AlarmManager)*****
+![Background task distribution](https://developer.android.com/images/guide/background/task-category-tree.png)
+
 
 * **What is a `ContentProvider` and what is it typically used for?** - [Learn from here](https://developer.android.com/guide/topics/providers/content-provider-basics) and [here](https://developer.android.com/guide/topics/providers/content-providers)
 
