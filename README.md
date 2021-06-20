@@ -122,7 +122,16 @@ Info: All others will get destroyed
 * **Why is it recommended to use only the default constructor to create a `Fragment`?** - [Learn from here](https://www.youtube.com/watch?v=9EdvcycKP9A)
 
     - In short, Fragments need to have a no-args constructor for the Android system to instantiate them.
-* **How would you communicate between two Fragments?** - [Learn from here](https://blog.mindorks.com/how-to-communicate-between-fragments)
+* **How would you communicate between two Fragments?** - [Learn from here](https://blog.mindorks.com/how-to-communicate-between-fragments) 
+
+
+   -With the help of ViewModel
+   -With the help of Interface
+   	1: Make an Interface in your FragmentA
+	2: Implement the Interface of the FragmentA in your Activity
+	3: Call the Interface method from your Activity
+	4: In your Activity, call your FragmentB to do the required changes
+	
 
 * **What is retained `Fragment`?**
     - By default, Fragments are destroyed and recreated along with their parent Activity’s when a configuration change occurs. Calling setRetainInstance(true) allows us to bypass this destroy-and-recreate cycle, signaling the system to retain the current instance of the fragment when the activity is recreated.
